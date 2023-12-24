@@ -1,0 +1,10 @@
+certifi==2023.7.22
+charset-normalizer==3.3.0
+flake8==6.1.0
+idna==3.4
+mccabe==0.7.0
+pycodestyle==2.11.1
+pyflakes==3.1.0
+requests==2.31.0
+tqdm==4.66.1
+urllib3==2.0.6

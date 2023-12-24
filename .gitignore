@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+lastfm_data/
+config.ini
+last_submitted_listen
+scrobbles.db
