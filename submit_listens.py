@@ -32,7 +32,9 @@ else:
         with open(LAST_SUBMITTED_LISTEN_FILE, 'r') as fp:
             last_submitted_listen_contents = fp.read().rstrip()
             if last_submitted_listen_contents:
-                last_submitted_listen = json.loads(last_submitted_listen_contents)
+                last_submitted_listen = json.loads(
+                    last_submitted_listen_contents
+                )
             del last_submitted_listen_contents
 
     if last_submitted_listen:

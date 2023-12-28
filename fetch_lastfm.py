@@ -29,7 +29,9 @@ else:
     last_fetched_date = max(
         itertools.chain(
             map(
-                lambda x: datetime.date.fromisoformat(re.sub(r'\.json$', '', x)),
+                lambda x: datetime.date.fromisoformat(
+                    re.sub(r'\.json$', '', x)
+                ),
                 os.listdir(LASTFM_DATA_ROOT)
             ),
             [datetime.date.fromisoformat(lastfm_first_scrobble_date)]
