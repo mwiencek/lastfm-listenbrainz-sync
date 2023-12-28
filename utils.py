@@ -13,15 +13,10 @@ from constants import (
     LAST_SUBMITTED_LISTEN_FILE,
     LASTFM_API_ROOT,
     LASTFM_DATA_ROOT,
-    LASTFM_MAX_PAGE,
     LISTENBRAINZ_API_ROOT,
     SCROBBLES_DB_FILE,
     USER_AGENT
 )
-
-
-def create_lastfm_data_root():
-    os.makedirs(LASTFM_DATA_ROOT, mode=0o755, exist_ok=True)
 
 
 def epoch_range_for_date(date_obj):
@@ -72,19 +67,6 @@ def make_json_request(url):
         else:
             res.raise_for_status()
         return res.json()
-
-
-def get_total_pages():
-    url = (
-        LASTFM_API_ROOT +
-        '?method=user.getrecenttracks' +
-        '&user=' + lastfm_username +
-        '&page=' + str(LASTFM_MAX_PAGE) +
-        '&limit=1' +
-        '&api_key=' + lastfm_api_key +
-        '&format=json'
-    )
-    return get_total_pages_from_json(make_json_request(url))
 
 
 def get_total_pages_from_json(res_json):
