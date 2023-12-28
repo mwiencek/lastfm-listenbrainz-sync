@@ -34,7 +34,7 @@ Scrobbles have to fetched from Last.fm first. If you're running this for the fir
 
 You can run this periodically to keep your local cache of scrobbles up-to-date; it will resume where it left off.
 
-The scrobbles will be downloaded as JSON to `lastfm_data/<username>`. They'll also be stored in a SQLite database named `scrobbles.db`.
+The scrobbles will be downloaded as JSON to `lastfm_data/`. They'll also be stored in a SQLite database named `scrobbles.db`.
 
 Scrobbles are submitted to ListenBrainz from `scrobbles.db`, not the JSON files. If you'd like to make modifications to the metadata before submission, you may do so with SQL:
 
