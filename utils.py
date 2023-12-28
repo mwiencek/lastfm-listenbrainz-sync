@@ -32,7 +32,9 @@ def epoch_range_for_date(date_obj):
 
 
 def get_iso_date_from_argv():
-    return datetime.date.fromisoformat(sys.argv[1])
+    if len(sys.argv) > 1:
+        return datetime.date.fromisoformat(sys.argv[1])
+    return None
 
 
 def get_db_con():

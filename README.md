@@ -53,16 +53,16 @@ The script maintains a `last_submitted_listen` file, so if the script fails or i
 
 ## Fetching/submitting scrobbles for a particular date
 
-If you want to reimport listens for a particular date, say because you fixed some metadata in `scrobbles.db`, then delete the old listens from ListenBrainz first, and run `submit_listens_date.py` for the date you want:
+If you want to reimport listens for a particular date, say because you fixed some metadata in `scrobbles.db`, then delete the old listens from ListenBrainz first, and run `submit_listens.py` with the date you want:
 
 ```sh
-./submit_listens_date.py 2023-12-28
+./submit_listens.py 2023-12-28
 ```
 
-If you want to refetch metadata from Last.fm for a particular date, say because you have Last.fm Pro and fixed some metadata on Last.fm itself using their "Edit scrobble" feature, then run `fetch_lastfm_date.py` for the date you want:
+If you want to refetch metadata from Last.fm for a particular date, say because you have Last.fm Pro and fixed some metadata on Last.fm itself using their "Edit scrobble" feature, then run `fetch_lastfm.py` with the date you want:
 
 ```sh
-./fetch_lastfm_date.py 2023-12-28
+./fetch_lastfm.py 2023-12-28
 ```
 
 And see above for resubmitting these to ListenBrainz.
