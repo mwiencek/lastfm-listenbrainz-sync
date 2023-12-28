@@ -2,7 +2,7 @@
 
 Scripts to sync Last.fm scrobbles to ListenBrainz.
 
-Compared to the [official importer](https://listenbrainz.org/profile/import/), this allows you to clean up your scrobbles locally (to standardize artist/track names, remove extra title information like "remaster," etc.) before importing (assuming you know how to use SQL), and doubles as a local backup of your scrobbling history.
+Compared to the [official importer](https://listenbrainz.org/profile/import/), this allows you to clean up your scrobbles locally (to standardize artist, track, or release names to match MusicBrainz, hopefully improving MBID mapping) before importing (assuming you know how to use SQL), and doubles as a local backup of your scrobbling history.
 
 There are also known issues with the official importer that cause it to drop many scrobbles (LB-524, LB-1107, LB-1108, LB-1314). Those issues don't exist here.
 
