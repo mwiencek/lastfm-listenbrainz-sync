@@ -32,6 +32,8 @@ Scrobbles have to fetched from Last.fm first. If you're running this for the fir
 ./fetch_lastfm.py
 ```
 
+You can run this periodically to keep your local cache of scrobbles up-to-date; it will resume where it left off.
+
 The scrobbles will be downloaded as JSON to `lastfm_data/<username>`. They'll also be stored in a SQLite database named `scrobbles.db`.
 
 Scrobbles are submitted to ListenBrainz from `scrobbles.db`, not the JSON files. If you'd like to make modifications to the metadata before submission, you may do so with SQL:
@@ -43,13 +45,13 @@ sqlite> update scrobble set artist_name = 'The Foo' where artist_name = 'Foo';
 
 See [schema.sql](schema.sql) for the complete database schema. Note that scrobbles are unique on `(uts, artist_name, track_name)`, not just `uts`.
 
-To submit all scrobbles as listens to ListenBrainz, do:
+To submit new scrobbles as listens to ListenBrainz, do:
 
 ```sh
 ./submit_listens.py
 ```
 
-The script maintains a `last_submitted_listen` file, so if the script fails or is interrupted, it will resume submission from there.
+The script maintains a `last_submitted_listen` file, and uses that to determine which scrobbles are new. So if you've fetched more scrobbles by running `fetch_lastfm.py` again, or if the submit script fails or is interrupted, it will resume submission from where it previously left off.
 
 ## Fetching/submitting scrobbles for a particular date
 
