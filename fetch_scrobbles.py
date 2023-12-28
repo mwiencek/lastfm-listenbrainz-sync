@@ -11,7 +11,7 @@ from utils import (
     create_lastfm_data_root,
     get_db_con,
     get_iso_date_from_argv,
-    fetch_lastfm_date
+    fetch_scrobbles_for_date
 )
 
 
@@ -22,7 +22,7 @@ date_obj = get_iso_date_from_argv()
 db_con = get_db_con()
 
 if date_obj:
-    fetch_lastfm_date(db_con, date_obj)
+    fetch_scrobbles_for_date(db_con, date_obj)
 else:
     today = datetime.date.today()
 
@@ -43,7 +43,7 @@ else:
     progress_bar = tqdm.tqdm(total=total_days)
 
     while last_fetched_date <= today:
-        fetch_lastfm_date(db_con, last_fetched_date)
+        fetch_scrobbles_for_date(db_con, last_fetched_date)
         last_fetched_date += datetime.timedelta(days=1)
         progress_bar.update(n=1)
 

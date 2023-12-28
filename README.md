@@ -29,7 +29,7 @@ Edit `config.ini` and fill out all the values.
 Scrobbles have to fetched from Last.fm first. If you're running this for the first time, it'll take a while, since it only fetches about one day per second.
 
 ```sh
-./fetch_lastfm.py
+./fetch_scrobbles.py
 ```
 
 You can run this periodically to keep your local cache of scrobbles up-to-date; it will resume where it left off.
@@ -51,7 +51,7 @@ To submit new scrobbles as listens to ListenBrainz, do:
 ./submit_listens.py
 ```
 
-The script maintains a `last_submitted_listen` file, and uses that to determine which scrobbles are new. So if you've fetched more scrobbles by running `fetch_lastfm.py` again, or if the submit script fails or is interrupted, it will resume submission from where it previously left off.
+The script maintains a `last_submitted_listen` file, and uses that to determine which scrobbles are new. So if you've fetched more scrobbles by running `fetch_scrobbles.py` again, or if the submit script fails or is interrupted, it will resume submission from where it previously left off.
 
 ## Fetching/submitting scrobbles for a particular date
 
@@ -61,10 +61,10 @@ If you want to reimport listens for a particular date, say because you fixed som
 ./submit_listens.py 2023-12-28
 ```
 
-If you want to refetch metadata from Last.fm for a particular date, say because you have Last.fm Pro and fixed some metadata on Last.fm itself using their "Edit scrobble" feature, then run `fetch_lastfm.py` with the date you want:
+If you want to refetch metadata from Last.fm for a particular date, say because you have Last.fm Pro and fixed some metadata on Last.fm itself using their "Edit scrobble" feature, then run `fetch_scrobbles.py` with the date you want:
 
 ```sh
-./fetch_lastfm.py 2023-12-28
+./fetch_scrobbles.py 2023-12-28
 ```
 
 And see above for resubmitting these to ListenBrainz.

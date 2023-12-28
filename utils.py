@@ -145,7 +145,7 @@ def cmp_recenttracks(a, b):
     )
 
 
-def fetch_lastfm_date(db_con, date_obj):
+def fetch_scrobbles_for_date(db_con, date_obj):
     recenttracks = []
     from_uts, to_uts = epoch_range_for_date(date_obj)
     base_url = (
