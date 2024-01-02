@@ -26,7 +26,7 @@ Edit `config.ini` and fill out all the values.
 
 ## Fetching/submitting scrobbles
 
-Scrobbles have to fetched from Last.fm first. If you're running this for the first time, it'll take a while, since it only fetches about one day per second.
+Scrobbles have to be fetched from Last.fm first. If you're running this for the first time, it'll take a while, since it only fetches about one day per second.
 
 ```sh
 ./fetch_scrobbles.py
