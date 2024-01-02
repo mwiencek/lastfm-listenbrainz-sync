@@ -8,8 +8,7 @@ There are also known issues with the official importer that cause it to drop man
 
 ## Prerequisites
 
- 1. [Last.fm API key](https://www.last.fm/api/account/create)
- 2. [ListenBrainz user token](https://listenbrainz.org/profile/)
+A [ListenBrainz user token](https://listenbrainz.org/profile/).
 
 ## Setup
 

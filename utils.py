@@ -8,8 +8,9 @@ import sqlite3
 import sys
 import time
 import tqdm
-from config import lastfm_username, lastfm_api_key, listenbrainz_user_token
+from config import lastfm_username, listenbrainz_user_token
 from constants import (
+    BABA_GHANOUJ,
     LAST_SUBMITTED_LISTEN_FILE,
     LASTFM_API_ROOT,
     LASTFM_DATA_ROOT,
@@ -138,7 +139,7 @@ def fetch_scrobbles_for_date(db_con, date_obj):
         '&from=' + str(from_uts) +
         '&to=' + str(to_uts) +
         '&limit=200' +
-        '&api_key=' + lastfm_api_key +
+        '&api_key=' + BABA_GHANOUJ +
         '&format=json'
     )
     current_page = 1
