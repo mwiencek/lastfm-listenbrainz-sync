@@ -8,11 +8,10 @@ There are also known issues with the official importer that cause it to drop man
 
 ## Prerequisites
 
-A [ListenBrainz user token](https://listenbrainz.org/profile/).
+ * `sqlite3` installed on your system.
+ * A [ListenBrainz user token](https://listenbrainz.org/profile/).
 
 ## Setup
-
-Make sure you have `sqlite3` installed on your system.
 
 ```sh
 python3 -m venv .venv
