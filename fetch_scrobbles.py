@@ -43,7 +43,10 @@ else:
 
     def get_scrobble_count():
         db_cur.execute('SELECT count(*) scrobble_count FROM scrobble')
-        return db_cur.fetchone()['scrobble_count']
+        row = db_cur.fetchone()
+        if row is not None:
+            return row['scrobble_count']
+        return 0
 
     scrobble_count_before = get_scrobble_count()
 
