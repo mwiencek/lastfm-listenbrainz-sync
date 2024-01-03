@@ -37,8 +37,15 @@ else:
         )
     )
 
-    total_days = (today - last_fetched_date).days + 1
+    db_cur = db_con.cursor()
 
+    def get_scrobble_count():
+        db_cur.execute('SELECT count(*) scrobble_count FROM scrobble')
+        return db_cur.fetchone()['scrobble_count']
+
+    scrobble_count_before = get_scrobble_count()
+
+    total_days = (today - last_fetched_date).days + 1
     progress_bar = tqdm.tqdm(total=total_days)
 
     while last_fetched_date <= today:
@@ -47,3 +54,13 @@ else:
         progress_bar.update(n=1)
 
     progress_bar.close()
+
+    scrobble_count_after = get_scrobble_count()
+    fetched_scrobble_count = (scrobble_count_after - scrobble_count_before)
+
+    print(
+        'Fetched ' +
+        str(fetched_scrobble_count) +
+        ' new scrobble' +
+        ('' if fetched_scrobble_count == 1 else 's')
+    )
