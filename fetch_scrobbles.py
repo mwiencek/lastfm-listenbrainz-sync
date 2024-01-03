@@ -16,10 +16,12 @@ from utils import (
 
 date_obj = get_iso_date_from_argv()
 
+fetched_at = int(datetime.datetime.now().timestamp())
+
 db_con = get_db_con()
 
 if date_obj:
-    fetch_scrobbles_for_date(db_con, date_obj)
+    fetch_scrobbles_for_date(db_con, date_obj, fetched_at)
 else:
     os.makedirs(LASTFM_DATA_ROOT, mode=0o755, exist_ok=True)
 
@@ -49,7 +51,7 @@ else:
     progress_bar = tqdm.tqdm(total=total_days)
 
     while last_fetched_date <= today:
-        fetch_scrobbles_for_date(db_con, last_fetched_date)
+        fetch_scrobbles_for_date(db_con, last_fetched_date, fetched_at)
         last_fetched_date += datetime.timedelta(days=1)
         progress_bar.update(n=1)
 

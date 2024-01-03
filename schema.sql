@@ -1,3 +1,10 @@
+CREATE TABLE schema_version (
+    version INTEGER
+);
+
+# keep in sync with constants.py
+INSERT INTO schema_version (version) VALUES (1);
+
 CREATE TABLE scrobble (
     uts INTEGER,
     artist_name TEXT,
@@ -5,7 +12,8 @@ CREATE TABLE scrobble (
     album_name TEXT,
     recording_mbid TEXT,
     release_mbid TEXT,
-    loved INTEGER
+    loved INTEGER,
+    fetched_at INTEGER
 );
 
 CREATE INDEX scrobble_idx_uts ON scrobble (uts);

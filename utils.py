@@ -14,6 +14,7 @@ from constants import (
     LAST_SUBMITTED_LISTEN_FILE,
     LASTFM_API_ROOT,
     LASTFM_DATA_ROOT,
+    LATEST_SCHEMA_VERSION,
     LISTENBRAINZ_API_ROOT,
     SCROBBLES_DB_FILE,
     USER_AGENT
@@ -53,6 +54,7 @@ def get_db_con():
             cur.executescript(fp.read())
             cur.close()
 
+    upgrade_schema(con)
     return con
 
 
@@ -74,7 +76,7 @@ def get_total_pages_from_json(res_json):
     return int(res_json['recenttracks']['@attr']['totalPages'])
 
 
-def load_json_into_db(db_con, recenttracks):
+def load_json_into_db(db_con, recenttracks, fetched_at):
     params = []
     for track in recenttracks:
         if track.get('@attr', {}).get('nowplaying') == 'true':
@@ -93,19 +95,21 @@ def load_json_into_db(db_con, recenttracks):
             album_name,
             recording_mbid,
             release_mbid,
-            loved
+            loved,
+            fetched_at
         ))
     cur = db_con.cursor()
     cur.executemany(
         '''
         INSERT INTO scrobble (uts, artist_name, track_name, album_name,
-                              recording_mbid, release_mbid, loved)
-             VALUES (?, ?, ?, ?, ?, ?, ?)
+                              recording_mbid, release_mbid, loved, fetched_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (uts, artist_name, track_name) DO UPDATE
                 SET album_name = excluded.album_name,
                     recording_mbid = excluded.recording_mbid,
                     release_mbid = excluded.release_mbid,
-                    loved = excluded.loved
+                    loved = excluded.loved,
+                    fetched_at = excluded.fetched_at
         ''',
         params
     )
@@ -128,7 +132,7 @@ def cmp_recenttracks(a, b):
     )
 
 
-def fetch_scrobbles_for_date(db_con, date_obj):
+def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
     recenttracks = []
     from_uts, to_uts = epoch_range_for_date(date_obj)
     base_url = (
@@ -165,7 +169,7 @@ def fetch_scrobbles_for_date(db_con, date_obj):
     )
     db_con.commit()
 
-    load_json_into_db(db_con, recenttracks)
+    load_json_into_db(db_con, recenttracks, fetched_at)
 
 
 def scrobble_to_listen(scrobble):
@@ -232,3 +236,38 @@ def submit_listens(db_cur, total_scrobbles,
         if rows and ratelimit_remaining == 0:
             time.sleep(ratelimit_reset_in)
     progress_bar.close()
+
+
+def upgrade_schema(db_con):
+    db_cur = db_con.cursor()
+
+    db_cur.execute(
+        '''
+        SELECT 1
+          FROM sqlite_schema
+         WHERE type = 'table'
+         AND name = 'schema_version';
+        '''
+    )
+    schema_version_exists = db_cur.fetchone()
+    if schema_version_exists is None:
+        db_cur.execute('CREATE TABLE schema_version (version INTEGER);')
+        db_cur.execute('INSERT INTO schema_version (version) VALUES (NULL);')
+
+    db_cur.execute('SELECT version FROM schema_version;')
+    current_schema_version = db_cur.fetchone()['version']
+    if current_schema_version is None:
+        current_schema_version = 0
+
+    if current_schema_version == 0:
+        db_cur.execute('ALTER TABLE scrobble ADD COLUMN fetched_at INTEGER;')
+        current_schema_version += 1
+
+    assert current_schema_version == LATEST_SCHEMA_VERSION
+
+    db_cur.execute(
+        'UPDATE schema_version SET version = ?;',
+        (current_schema_version,)
+    )
+
+    db_con.commit()
