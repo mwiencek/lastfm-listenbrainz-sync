@@ -257,23 +257,31 @@ def upgrade_schema(db_con):
     )
     schema_version_exists = db_cur.fetchone()
     if schema_version_exists is None:
-        db_cur.execute('CREATE TABLE schema_version (version INTEGER);')
-        db_cur.execute('INSERT INTO schema_version (version) VALUES (NULL);')
-
-    db_cur.execute('SELECT version FROM schema_version;')
-    current_schema_version = db_cur.fetchone()['version']
-    if current_schema_version is None:
         current_schema_version = 0
+    else:
+        db_cur.execute('SELECT version FROM schema_version;')
+        current_schema_version = db_cur.fetchone()['version']
 
-    if current_schema_version == 0:
-        db_cur.execute('ALTER TABLE scrobble ADD COLUMN fetched_at INTEGER;')
+    if current_schema_version > LATEST_SCHEMA_VERSION:
+        print(
+            'Error: The schema version of scrobbles.db is newer than ' +
+            'the current codebase supports.',
+            file=sys.stderr
+        )
+        sys.exit(1)
+
+    while current_schema_version < LATEST_SCHEMA_VERSION:
+        with open(
+            os.path.join(
+                os.getcwd(),
+                'schema_changes',
+                str(current_schema_version + 1) + '.sql'
+            ),
+            'r'
+        ) as fp:
+            db_cur.executescript(fp.read())
         current_schema_version += 1
 
     assert current_schema_version == LATEST_SCHEMA_VERSION
-
-    db_cur.execute(
-        'UPDATE schema_version SET version = ?;',
-        (current_schema_version,)
-    )
 
     db_con.commit()
