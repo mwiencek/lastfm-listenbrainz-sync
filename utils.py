@@ -39,7 +39,7 @@ def get_db_con():
     if not os.path.exists(SCROBBLES_DB_FILE):
         create_schema = True
 
-    con = sqlite3.connect(SCROBBLES_DB_FILE)
+    con = sqlite3.connect(SCROBBLES_DB_FILE, isolation_level='DEFERRED')
 
     # https://docs.python.org/3/library/sqlite3.html#how-to-create-and-use-row-factories
     def dict_factory(cursor, row):
