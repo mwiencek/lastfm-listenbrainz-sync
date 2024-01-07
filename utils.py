@@ -151,7 +151,11 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
     while current_page <= total_pages:
         page_url = base_url + '&page=' + str(current_page)
         res_json = make_json_request(page_url)
-        recenttracks.extend(res_json['recenttracks']['track'])
+        track = res_json['recenttracks']['track']
+        # may be a dict if there is only a single item
+        if isinstance(track, dict):
+            track = [track]
+        recenttracks.extend(track)
         total_pages = get_total_pages_from_json(res_json)
         current_page += 1
 
