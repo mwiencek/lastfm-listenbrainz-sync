@@ -16,6 +16,7 @@ from constants import (
     LASTFM_DATA_ROOT,
     LATEST_SCHEMA_VERSION,
     LISTENBRAINZ_API_ROOT,
+    SCROBBLE_FIXES_ROOT,
     SCROBBLES_DB_FILE,
     USER_AGENT
 )
@@ -191,7 +192,11 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
 
     load_json_into_db(db_cur, recenttracks, fetched_at)
 
-    db_con.commit()
+    scrobble_fixes = os.path.join(SCROBBLE_FIXES_ROOT,
+                                  str(date_obj) + '.sql')
+    if os.path.exists(scrobble_fixes):
+        with open(scrobble_fixes, 'r') as fp:
+            db_cur.executescript(fp.read())
 
     scrobbles_after = get_scrobbles()
     added_scrobbles = sorted(
@@ -208,6 +213,8 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
 
     for scrobble in added_scrobbles:
         print('\tAdded ' + str(dict(scrobble)))
+
+    db_con.commit()
 
 
 def scrobble_to_listen(scrobble):

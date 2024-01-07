@@ -1,6 +1,7 @@
 .venv/
 __pycache__/
 lastfm_data/
+scrobble_fixes/
 config.ini
 last_submitted_listen
 scrobbles.db
