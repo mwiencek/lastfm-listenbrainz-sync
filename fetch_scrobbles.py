@@ -4,7 +4,6 @@ import datetime
 import itertools
 import os
 import re
-import tqdm
 from constants import LASTFM_DATA_ROOT
 from config import lastfm_first_scrobble_date
 from utils import (
@@ -51,14 +50,10 @@ else:
     scrobble_count_before = get_scrobble_count()
 
     total_days = (today - last_fetched_date).days + 1
-    progress_bar = tqdm.tqdm(total=total_days)
 
     while last_fetched_date <= today:
         fetch_scrobbles_for_date(db_con, last_fetched_date, fetched_at)
         last_fetched_date += datetime.timedelta(days=1)
-        progress_bar.update(n=1)
-
-    progress_bar.close()
 
     scrobble_count_after = get_scrobble_count()
     fetched_scrobble_count = (scrobble_count_after - scrobble_count_before)

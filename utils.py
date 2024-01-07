@@ -133,6 +133,7 @@ def is_not_now_playing_track(track):
 
 
 def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
+    print(f'Fetching scrobbles for {date_obj}')
     recenttracks = []
     from_uts, to_uts = epoch_range_for_date(date_obj)
     base_url = (
@@ -167,6 +168,22 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
 
     # delete existing scrobbles for this date
     db_cur = db_con.cursor()
+
+    def get_scrobbles():
+        db_cur.execute(
+            '''
+            SELECT uts, artist_name, track_name, album_name,
+                   recording_mbid, release_mbid, loved
+              FROM scrobble
+             WHERE uts >= ?
+               AND uts < ?
+            ''',
+            (from_uts, to_uts)
+        )
+        return set(map(lambda x: tuple(sorted(x.items())), db_cur.fetchall()))
+
+    scrobbles_before = get_scrobbles()
+
     db_cur.execute(
         'DELETE FROM scrobble WHERE uts >= ? AND uts < ?',
         (from_uts, to_uts)
@@ -175,6 +192,22 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
     load_json_into_db(db_cur, recenttracks, fetched_at)
 
     db_con.commit()
+
+    scrobbles_after = get_scrobbles()
+    added_scrobbles = sorted(
+        map(dict, scrobbles_after - scrobbles_before),
+        key=lambda x: x['uts']
+    )
+    removed_scrobbles = sorted(
+        map(dict, scrobbles_before - scrobbles_after),
+        key=lambda x: x['uts']
+    )
+
+    for scrobble in removed_scrobbles:
+        print('\tRemoved ' + str(dict(scrobble)))
+
+    for scrobble in added_scrobbles:
+        print('\tAdded ' + str(dict(scrobble)))
 
 
 def scrobble_to_listen(scrobble):
