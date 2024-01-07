@@ -76,7 +76,7 @@ def get_total_pages_from_json(res_json):
     return int(res_json['recenttracks']['@attr']['totalPages'])
 
 
-def load_json_into_db(db_con, recenttracks, fetched_at):
+def load_json_into_db(db_cur, recenttracks, fetched_at):
     params = []
     for track in recenttracks:
         uts = int(track['date']['uts'])
@@ -96,8 +96,7 @@ def load_json_into_db(db_con, recenttracks, fetched_at):
             loved,
             fetched_at
         ))
-    cur = db_con.cursor()
-    cur.executemany(
+    db_cur.executemany(
         '''
         INSERT INTO scrobble (uts, artist_name, track_name, album_name,
                               recording_mbid, release_mbid, loved, fetched_at)
@@ -111,7 +110,6 @@ def load_json_into_db(db_con, recenttracks, fetched_at):
         ''',
         params
     )
-    db_con.commit()
 
 
 def cmp_strings(a, b):
@@ -173,9 +171,10 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
         'DELETE FROM scrobble WHERE uts >= ? AND uts < ?',
         (from_uts, to_uts)
     )
-    db_con.commit()
 
-    load_json_into_db(db_con, recenttracks, fetched_at)
+    load_json_into_db(db_cur, recenttracks, fetched_at)
+
+    db_con.commit()
 
 
 def scrobble_to_listen(scrobble):
