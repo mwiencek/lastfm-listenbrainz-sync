@@ -79,8 +79,6 @@ def get_total_pages_from_json(res_json):
 def load_json_into_db(db_con, recenttracks, fetched_at):
     params = []
     for track in recenttracks:
-        if track.get('@attr', {}).get('nowplaying') == 'true':
-            continue
         uts = int(track['date']['uts'])
         artist_name = track['artist']['name']
         track_name = track['name']
@@ -132,6 +130,10 @@ def cmp_recenttracks(a, b):
     )
 
 
+def is_not_now_playing_track(track):
+    return track.get('@attr', {}).get('nowplaying') != 'true'
+
+
 def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
     recenttracks = []
     from_uts, to_uts = epoch_range_for_date(date_obj)
@@ -155,7 +157,7 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
         # may be a dict if there is only a single item
         if isinstance(track, dict):
             track = [track]
-        recenttracks.extend(track)
+        recenttracks.extend(filter(is_not_now_playing_track, track))
         total_pages = get_total_pages_from_json(res_json)
         current_page += 1
 
