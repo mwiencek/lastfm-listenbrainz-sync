@@ -1,22 +1,16 @@
 import datetime
-from functools import cmp_to_key
 import json
-import math
 import os
 import requests
 import sqlite3
 import sys
 import time
 import tqdm
-from config import lastfm_username, listenbrainz_user_token
+from config import listenbrainz_user_token
 from constants import (
-    BABA_GHANOUJ,
     LAST_SUBMITTED_LISTEN_FILE,
-    LASTFM_API_ROOT,
-    LASTFM_DATA_ROOT,
     LATEST_SCHEMA_VERSION,
     LISTENBRAINZ_API_ROOT,
-    SCROBBLE_FIXES_ROOT,
     SCROBBLES_DB_FILE,
     USER_AGENT
 )
@@ -73,148 +67,12 @@ def make_json_request(url):
         return res.json()
 
 
-def get_total_pages_from_json(res_json):
-    return int(res_json['recenttracks']['@attr']['totalPages'])
-
-
-def load_json_into_db(db_cur, recenttracks, fetched_at):
-    params = []
-    for track in recenttracks:
-        uts = int(track['date']['uts'])
-        artist_name = track['artist']['name']
-        track_name = track['name']
-        album_name = track['album']['#text']
-        recording_mbid = track['mbid']
-        release_mbid = track['album']['mbid']
-        loved = int(track['loved'])
-        params.append((
-            uts,
-            artist_name,
-            track_name,
-            album_name,
-            recording_mbid,
-            release_mbid,
-            loved,
-            fetched_at
-        ))
-    db_cur.executemany(
-        '''
-        INSERT INTO scrobble (uts, artist_name, track_name, album_name,
-                              recording_mbid, release_mbid, loved, fetched_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT (uts, artist_name, track_name) DO UPDATE
-                SET album_name = excluded.album_name,
-                    recording_mbid = excluded.recording_mbid,
-                    release_mbid = excluded.release_mbid,
-                    loved = excluded.loved,
-                    fetched_at = excluded.fetched_at
-        ''',
-        params
-    )
-
-
 def cmp_strings(a, b):
     if a < b:
         return -1
     if a > b:
         return 1
     return 0
-
-
-def cmp_recenttracks(a, b):
-    return (
-        (int(a['date']['uts']) - int(b['date']['uts'])) or
-        cmp_strings(a['artist']['name'], b['artist']['name']) or
-        cmp_strings(a['name'], b['name'])
-    )
-
-
-def is_not_now_playing_track(track):
-    return track.get('@attr', {}).get('nowplaying') != 'true'
-
-
-def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
-    print(f'Fetching scrobbles for {date_obj}')
-    recenttracks = []
-    from_uts, to_uts = epoch_range_for_date(date_obj)
-    base_url = (
-        LASTFM_API_ROOT +
-        '?method=user.getrecenttracks' +
-        '&user=' + lastfm_username +
-        '&extended=1' +
-        '&from=' + str(from_uts) +
-        '&to=' + str(to_uts) +
-        '&limit=200' +
-        '&api_key=' + BABA_GHANOUJ +
-        '&format=json'
-    )
-    current_page = 1
-    total_pages = math.inf
-    while current_page <= total_pages:
-        page_url = base_url + '&page=' + str(current_page)
-        res_json = make_json_request(page_url)
-        track = res_json['recenttracks']['track']
-        # may be a dict if there is only a single item
-        if isinstance(track, dict):
-            track = [track]
-        recenttracks.extend(filter(is_not_now_playing_track, track))
-        total_pages = get_total_pages_from_json(res_json)
-        current_page += 1
-
-    recenttracks.sort(key=cmp_to_key(cmp_recenttracks))
-
-    json_file = os.path.join(LASTFM_DATA_ROOT, str(date_obj) + '.json')
-    with open(json_file, 'w') as fp:
-        json.dump({'recenttracks': recenttracks}, fp)
-
-    # delete existing scrobbles for this date
-    db_cur = db_con.cursor()
-
-    def get_scrobbles():
-        db_cur.execute(
-            '''
-            SELECT uts, artist_name, track_name, album_name,
-                   recording_mbid, release_mbid, loved
-              FROM scrobble
-             WHERE uts >= ?
-               AND uts < ?
-            ''',
-            (from_uts, to_uts)
-        )
-        return set(map(lambda x: tuple(sorted(x.items())), db_cur.fetchall()))
-
-    scrobbles_before = get_scrobbles()
-
-    db_cur.execute(
-        'DELETE FROM scrobble WHERE uts >= ? AND uts < ?',
-        (from_uts, to_uts)
-    )
-
-    load_json_into_db(db_cur, recenttracks, fetched_at)
-
-    scrobble_fixes = os.path.join(SCROBBLE_FIXES_ROOT,
-                                  str(date_obj) + '.sql')
-    if os.path.exists(scrobble_fixes):
-        with open(scrobble_fixes, 'r') as fp:
-            db_cur.executescript(fp.read())
-
-    scrobbles_after = get_scrobbles()
-    added_scrobbles = sorted(
-        map(dict, scrobbles_after - scrobbles_before),
-        key=lambda x: x['uts']
-    )
-    removed_scrobbles = sorted(
-        map(dict, scrobbles_before - scrobbles_after),
-        key=lambda x: x['uts']
-    )
-
-    for scrobble in removed_scrobbles:
-        print('\tRemoved ' + str(dict(scrobble)))
-
-    for scrobble in added_scrobbles:
-        print('\tAdded ' + str(dict(scrobble)))
-
-    db_con.commit()
 
 
 def scrobble_to_listen(scrobble):
