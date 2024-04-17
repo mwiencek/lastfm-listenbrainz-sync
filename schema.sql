@@ -2,7 +2,7 @@ CREATE TABLE schema_version (
     version INTEGER
 );
 
-# keep in sync with constants.py
+-- keep in sync with constants.py
 INSERT INTO schema_version (version) VALUES (1);
 
 CREATE TABLE scrobble (
