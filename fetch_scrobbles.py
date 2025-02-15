@@ -106,10 +106,10 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
     )
 
     for scrobble in removed_scrobbles:
-        print('\tRemoved ' + str(dict(scrobble)))
+        print('\tRemoved ' + str(scrobble))
 
     for scrobble in added_scrobbles:
-        print('\tAdded ' + str(dict(scrobble)))
+        print('\tAdded ' + str(scrobble))
 
     db_con.commit()
 
