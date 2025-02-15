@@ -169,14 +169,14 @@ if date_obj:
 else:
     os.makedirs(LASTFM_DATA_ROOT, mode=0o755, exist_ok=True)
 
+    db_cur = db_con.cursor()
+
     today = datetime.date.today()
 
     last_fetched_date = get_last_fetched_date(
-        LASTFM_DATA_ROOT,
+        db_cur,
         datetime.date.fromisoformat(lastfm_first_scrobble_date)
     )
-
-    db_cur = db_con.cursor()
 
     def get_scrobble_count():
         db_cur.execute('SELECT count(*) scrobble_count FROM scrobble')

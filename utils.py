@@ -1,7 +1,5 @@
 import datetime
-import itertools
 import os
-import re
 import sys
 import time
 
@@ -52,18 +50,15 @@ def get_db_con():
     return con
 
 
-def get_last_fetched_date(root_dir, start_date):
-    return max(
-        itertools.chain(
-            map(
-                lambda x: datetime.date.fromisoformat(
-                    re.sub(r'\.json$', '', x)
-                ),
-                os.listdir(root_dir)
-            ),
-            [start_date]
-        )
-    )
+def get_last_fetched_date(db_cur, start_date):
+    db_cur.execute('SELECT max(uts) max_uts FROM scrobble')
+    row = db_cur.fetchone()
+    if row is not None:
+        return datetime.datetime.fromtimestamp(
+            row['max_uts'],
+            datetime.UTC
+        ).date()
+    return start_date
 
 
 def make_json_request(url):
