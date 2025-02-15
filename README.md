@@ -13,7 +13,7 @@ Compared to the official importer, this allows you to clean up your scrobbles lo
 
 ```sh
 python3 -m venv .venv
-.venv/bin/activate  # or activate.fish, if you use fish
+. .venv/bin/activate  # or activate.fish, if you use fish
 pip install -r requirements.txt
 cp config.dist.ini config.ini
 ```
