@@ -2,11 +2,9 @@
 
 import datetime
 from functools import cmp_to_key
-import itertools
 import json
 import math
 import os
-import re
 from constants import (
     BABA_GHANOUJ,
     LASTFM_API_ROOT,
@@ -19,6 +17,7 @@ from utils import (
     epoch_range_for_date,
     get_db_con,
     get_iso_date_from_argv,
+    get_last_fetched_date,
     make_json_request
 )
 
@@ -172,16 +171,9 @@ else:
 
     today = datetime.date.today()
 
-    last_fetched_date = max(
-        itertools.chain(
-            map(
-                lambda x: datetime.date.fromisoformat(
-                    re.sub(r'\.json$', '', x)
-                ),
-                os.listdir(LASTFM_DATA_ROOT)
-            ),
-            [datetime.date.fromisoformat(lastfm_first_scrobble_date)]
-        )
+    last_fetched_date = get_last_fetched_date(
+        LASTFM_DATA_ROOT,
+        datetime.date.fromisoformat(lastfm_first_scrobble_date)
     )
 
     db_cur = db_con.cursor()

@@ -1,5 +1,7 @@
 import datetime
+import itertools
 import os
+import re
 import sys
 import time
 
@@ -48,6 +50,20 @@ def get_db_con():
 
     upgrade_schema(con)
     return con
+
+
+def get_last_fetched_date(root_dir, start_date):
+    return max(
+        itertools.chain(
+            map(
+                lambda x: datetime.date.fromisoformat(
+                    re.sub(r'\.json$', '', x)
+                ),
+                os.listdir(root_dir)
+            ),
+            [start_date]
+        )
+    )
 
 
 def make_json_request(url):
