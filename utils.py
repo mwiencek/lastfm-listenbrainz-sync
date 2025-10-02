@@ -53,7 +53,7 @@ def get_db_con():
 def get_last_fetched_date(db_cur, start_date):
     db_cur.execute('SELECT max(uts) max_uts FROM scrobble')
     row = db_cur.fetchone()
-    if row is not None:
+    if row['max_uts'] is not None:
         return datetime.datetime.fromtimestamp(
             row['max_uts'],
             datetime.UTC
