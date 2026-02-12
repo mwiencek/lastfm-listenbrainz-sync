@@ -15,7 +15,10 @@ from constants import (
 
 def epoch_range_for_date(date_obj):
     # in the lastfm api, "from" is inclusive and "to" is exclusive
-    dt1 = datetime.datetime.combine(date_obj, datetime.datetime.min.time())
+    dt1 = datetime.datetime(
+        date_obj.year, date_obj.month, date_obj.day,
+        tzinfo=datetime.timezone.utc
+    )
     dt2 = dt1 + datetime.timedelta(days=1)
     return (int(dt1.timestamp()), int(dt2.timestamp()))
 
