@@ -6,12 +6,11 @@ import json
 import math
 import os
 from constants import (
-    BABA_GHANOUJ,
     LASTFM_API_ROOT,
     LASTFM_DATA_ROOT,
     SCROBBLE_FIXES_ROOT
 )
-from config import lastfm_first_scrobble_date, lastfm_username
+from config import lastfm_first_scrobble_date, lastfm_username, lastfm_api_key
 from utils import (
     cmp_strings,
     epoch_range_for_date,
@@ -42,7 +41,7 @@ def fetch_scrobbles_for_date(db_con, date_obj, fetched_at):
         '&from=' + str(from_uts) +
         '&to=' + str(to_uts) +
         '&limit=200' +
-        '&api_key=' + BABA_GHANOUJ +
+        '&api_key=' + lastfm_api_key +
         '&format=json'
     )
     current_page = 1
